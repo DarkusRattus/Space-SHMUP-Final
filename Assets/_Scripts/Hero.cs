@@ -186,8 +186,9 @@ public class Hero : MonoBehaviour {
             if (value < 0)
             {
                 Destroy(this.gameObject);
+                Time.timeScale = 0;
                 // Tell Main.S to restart the game after a delay
-                Main.S.DelayedRestart(gameRestartDelay);
+                // Main.S.DelayedRestart(gameRestartDelay);
             }
         }
     }

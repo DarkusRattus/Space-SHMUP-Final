@@ -64,7 +64,6 @@ public class UIManager : MonoBehaviour {
         }
         else if (Time.timeScale == 0)
         {
-            Time.timeScale = 1;
             hidePaused();
         }
     }
@@ -85,6 +84,7 @@ public class UIManager : MonoBehaviour {
         {
             g.SetActive(false);
         }
+        Time.timeScale = 1;
     }
 
     // Shows the End Game objects
