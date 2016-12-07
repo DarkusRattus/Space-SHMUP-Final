@@ -1,25 +1,31 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 using System.Collections;
 
 // Adapted from a SitePoint tutorial
 
 public class UIManager : MonoBehaviour {
 
-    GameObject[] pauseObjects;
-    GameObject[] finishObjects;
+    public GameObject firstButtonPause;
+    public GameObject firstButtonGameOver;
+
+    [SerializeField]
+    private GameObject[] pauseObjects;
+    [SerializeField]
+    private GameObject[] finishObjects;
+
+    private GameObject currentButton;
+
+    private bool isPaused = false;
 
     // Use this for initialization
     void Start()
     {
         Time.timeScale = 1;
-
-        pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");             // Paused UI elements
-        finishObjects = GameObject.FindGameObjectsWithTag("ShowOnEndGame");          // End Game UI elements
-
         hidePaused();
         hideFinished();
-
     }
 
     // Update is called once per frame
@@ -30,21 +36,98 @@ public class UIManager : MonoBehaviour {
         {
             if (Time.timeScale == 1 && Hero.S.shieldLevel >= 0)
             {
-                Time.timeScale = 0;
-                showPaused();
+                Time.timeScale = 0; // STOP TIME
+                showPaused(); // Show the buttons
+
+                currentButton = firstButtonPause;
+
+                EventSystem.current.SetSelectedGameObject(firstButtonPause); // This is the selected button
+
+                // CHANGE THE HIGHLIGHTED BUTTON COLOR
+                /*Button b = firstButtonPause.GetComponent<Button>();
+                ColorBlock cb = b.colors;
+                cb.highlightedColor = Color.red;
+                b.colors = cb; */
+
+                SelectButton(currentButton, false);
+
+                isPaused = true; // We iz paused
             }
             else if (Time.timeScale == 0 && Hero.S.shieldLevel >= 0)
             {
-                Time.timeScale = 1;
-                hidePaused();
+                Time.timeScale = 1; // Start time again
+                hidePaused(); // Hide the buttons
+                isPaused = false; // No longer paused
             }
         }
-
+        
         // Player is kill (RIP in piece)
         if (Time.timeScale == 0 && Hero.S.shieldLevel < 0)
         {
             showFinished();
         }
+
+        // Navigate through the buttons
+        if (Time.timeScale == 0 && Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            int currentPos; // Position of the currently selected button
+            int pos = 0;
+            if (isPaused)
+            { 
+                foreach (GameObject button in pauseObjects)
+                {
+                    if (currentButton == button)
+                    {
+                        currentPos = pos;
+                        break;
+                    }
+                    pos++;
+                }
+                if(pos >= pauseObjects.Length - 2)
+                {
+                    currentPos = 0;
+                }
+                else
+                {
+                    currentPos = pos+1;
+                }
+                currentButton = pauseObjects[currentPos];
+            }
+            else
+            {
+                foreach (GameObject button in finishObjects)
+                {
+                    if (currentButton == button)
+                    {
+                        currentPos = pos;
+                        break;
+                    }
+                    pos++;
+                }
+                if (pos >= finishObjects.Length - 2)
+                {
+                    currentPos = 0;
+                }
+                else
+                {
+                    currentPos = pos+1;
+                }
+                currentButton = finishObjects[currentPos];
+            }
+            SelectButton(currentButton, true);
+        }
+    }
+
+    // Select a button
+    public void SelectButton(GameObject selectedButton, bool setActive)
+    {
+        EventSystem.current.SetSelectedGameObject(selectedButton);
+        Button b = selectedButton.GetComponent<Button>();
+        ColorBlock cb = b.colors;
+        cb.highlightedColor = Color.red;
+        b.colors = cb;
+        selectedButton.GetComponent<Button>().colors = cb;
+
     }
 
 
