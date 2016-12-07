@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour {
 
     // We should access these through the inspector pane. 
     // Because I like it that way.
+    public GameObject shieldBar; // Shield health image
     public GameObject[] pauseObjects; // Collection of options on the pause screen
     public GameObject[] finishObjects; // Collection of objects on the Game Over screen
                                         
@@ -18,10 +19,12 @@ public class UIManager : MonoBehaviour {
 
     private bool isPaused; // Are we on the pause menu?
     private bool endGameTriggered; // Has the Game Over screen shown up yet?
+    private float shieldLength; // Original shield vector length
 
     // Use this for initialization
     void Start()
     {
+        shieldLength = shieldBar.transform.localScale.x;
         Time.timeScale = 1;
         isPaused = false;
         endGameTriggered = false;
@@ -34,7 +37,7 @@ public class UIManager : MonoBehaviour {
     {
         // Pause dat shit
         if (Input.GetKeyDown(KeyCode.Escape))
-        {
+        { 
             if (Time.timeScale == 1 && Hero.S.shieldLevel >= 0)
             {
                 Time.timeScale = 0; // STOP TIME
@@ -120,6 +123,10 @@ public class UIManager : MonoBehaviour {
             }
             EventSystem.current.SetSelectedGameObject(currentButton);  // Call the method that actually selects the button
         }
+        shieldBar.transform.localScale = new Vector3(shieldLength * (Hero.S.shieldLevel / Hero.S.maxShieldLevel),
+                                                        shieldBar.transform.localScale.y,
+                                                        shieldBar.transform.localScale.z);
+
     }
 
 

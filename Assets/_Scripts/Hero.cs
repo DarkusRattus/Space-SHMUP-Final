@@ -9,8 +9,10 @@ public class Hero : MonoBehaviour {
 
 	// These fields control the movement of the ship
 	public float speed = 30;
+    public float maxShieldLevel = 4;
 	public float rollMult = -45;
 	public float pitchMult = 30;
+
 
 	// Ship status information
     [SerializeField]
@@ -181,7 +183,7 @@ public class Hero : MonoBehaviour {
         }
         set
         {
-            _shieldLevel = Mathf.Min(value, 4);
+            _shieldLevel = Mathf.Min(value, maxShieldLevel);
             // If the is going to be set to less than zero
             if (value < 0)
             {
