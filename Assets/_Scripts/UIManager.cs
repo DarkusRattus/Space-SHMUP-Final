@@ -8,22 +8,23 @@ using System.Collections;
 
 public class UIManager : MonoBehaviour {
 
-    public GameObject firstButtonPause;
-    public GameObject firstButtonGameOver;
 
-    [SerializeField]
-    private GameObject[] pauseObjects;
-    [SerializeField]
-    private GameObject[] finishObjects;
+    // We should access these through the inspector pane. 
+    // Because I like it that way.
+    public GameObject[] pauseObjects; // Collection of options on the pause screen
+    public GameObject[] finishObjects; // Collection of objects on the Game Over screen
+                                        
+    private GameObject currentButton; // The highlighted button
 
-    private GameObject currentButton;
-
-    private bool isPaused = false;
+    private bool isPaused; // Are we on the pause menu?
+    private bool endGameTriggered; // Has the Game Over screen shown up yet?
 
     // Use this for initialization
     void Start()
     {
         Time.timeScale = 1;
+        isPaused = false;
+        endGameTriggered = false;
         hidePaused();
         hideFinished();
     }
@@ -39,17 +40,8 @@ public class UIManager : MonoBehaviour {
                 Time.timeScale = 0; // STOP TIME
                 showPaused(); // Show the buttons
 
-                currentButton = firstButtonPause;
-
-                EventSystem.current.SetSelectedGameObject(firstButtonPause); // This is the selected button
-
-                // CHANGE THE HIGHLIGHTED BUTTON COLOR
-                /*Button b = firstButtonPause.GetComponent<Button>();
-                ColorBlock cb = b.colors;
-                cb.highlightedColor = Color.red;
-                b.colors = cb; */
-
-                SelectButton(currentButton, false);
+                currentButton = pauseObjects[0]; // Assign the current button to be the first button on the pause screen
+                EventSystem.current.SetSelectedGameObject(currentButton); // This is the selected button
 
                 isPaused = true; // We iz paused
             }
@@ -65,36 +57,50 @@ public class UIManager : MonoBehaviour {
         if (Time.timeScale == 0 && Hero.S.shieldLevel < 0)
         {
             showFinished();
+            if (!endGameTriggered)
+            {
+                currentButton = finishObjects[0]; // Assign the current button to the first button on the Game Over screen
+                EventSystem.current.SetSelectedGameObject(currentButton);
+                endGameTriggered = true; 
+            }
+
         }
 
         // Navigate through the buttons
-        if (Time.timeScale == 0 && Input.GetKeyDown(KeyCode.DownArrow))
+        // THIS CODE IS A MESS LIKE ME HAHAHAHA
+        // Note: two buttons can be highlighted at the same time if you're using a mouse at the same time as your keyboard
+        // I'm going to call this a feature
+        if (Time.timeScale == 0 && (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.UpArrow)))
         {
             int currentPos; // Position of the currently selected button
-            int pos = 0;
-            if (isPaused)
+            int pos = 0; // Temp variable for iteration
+            bool downKey; // Are we working with the up key or down key?
+            if (Input.GetKeyDown(KeyCode.DownArrow)) downKey = true;
+            else downKey = false;
+           
+            if (isPaused) // Are we paused?
             { 
                 foreach (GameObject button in pauseObjects)
                 {
                     if (currentButton == button)
                     {
-                        currentPos = pos;
-                        break;
+                        currentPos = pos; // Assign the button to the position
+                        break; // We found the button, get outta here
                     }
                     pos++;
                 }
-                if(pos >= pauseObjects.Length - 2)
-                {
-                    currentPos = 0;
-                }
-                else
-                {
-                    currentPos = pos+1;
-                }
-                currentButton = pauseObjects[currentPos];
+                // The last object in pauseObjects is going to be UI Text for the PAUSED label
+                // Because I'm lazy...so putting at Length-2 skips it
+                // If we're at Length-2, we're on the last button. So we're going to start at the first.
+                if (pos >= pauseObjects.Length - 2 && downKey) currentPos = 0;
+                else if (downKey) currentPos = pos + 1;
+                else if (pos == 0) currentPos = pauseObjects.Length - 2;
+                else currentPos = pos - 1;
+                currentButton = pauseObjects[currentPos]; // Assign the current button
             }
-            else
+            else // We're not paused...so we're on the Game Over screen.
             {
+                // Iterate through the objects on the Game Over screen
                 foreach (GameObject button in finishObjects)
                 {
                     if (currentButton == button)
@@ -104,31 +110,18 @@ public class UIManager : MonoBehaviour {
                     }
                     pos++;
                 }
-                if (pos >= finishObjects.Length - 2)
-                {
-                    currentPos = 0;
-                }
-                else
-                {
-                    currentPos = pos+1;
-                }
-                currentButton = finishObjects[currentPos];
+                // Same thing as before
+                if (pos >= finishObjects.Length - 2 && downKey) currentPos = 0;
+                else if (downKey) currentPos = pos + 1;
+                else if (pos == 0) currentPos = finishObjects.Length - 2;
+                else currentPos = pos - 1;
+                
+                currentButton = finishObjects[currentPos]; // Assign the current button
             }
-            SelectButton(currentButton, true);
+            EventSystem.current.SetSelectedGameObject(currentButton);  // Call the method that actually selects the button
         }
     }
 
-    // Select a button
-    public void SelectButton(GameObject selectedButton, bool setActive)
-    {
-        EventSystem.current.SetSelectedGameObject(selectedButton);
-        Button b = selectedButton.GetComponent<Button>();
-        ColorBlock cb = b.colors;
-        cb.highlightedColor = Color.red;
-        b.colors = cb;
-        selectedButton.GetComponent<Button>().colors = cb;
-
-    }
 
 
     // Restarts the level
