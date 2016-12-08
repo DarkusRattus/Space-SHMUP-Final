@@ -19,6 +19,18 @@ public class Shield : MonoBehaviour {
 			// Adjust the texture offset to show different shield level
 			mat.mainTextureOffset = new Vector2 (0.2f * levelShown, 0);
 		}
+        if (currLevel / Hero.S.maxShieldLevel >= .75)
+        {
+            this.GetComponent<Renderer>().material.color = Color.green;
+        }
+        else if (currLevel / Hero.S.maxShieldLevel >= .33)
+        {
+            this.GetComponent<Renderer>().material.color = Color.yellow;
+        }
+        else
+        {
+            this.GetComponent<Renderer>().material.color = Color.red;
+        }
 		float rZ = (rotationsPerSecond * Time.time * 360) % 360f;
 		transform.rotation = Quaternion.Euler (0, 0, rZ);
 

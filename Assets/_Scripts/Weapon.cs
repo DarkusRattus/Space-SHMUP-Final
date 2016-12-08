@@ -9,6 +9,7 @@ public enum WeaponType
     none, // The default / no weapon
     blaster, // A simple blaster
     spread, // Two shots simultaneously
+    bomb, // TESTING
     phaser, // Shots that move in waves [NI]
     missile, // Homing missiles [NI]
     laser, // Damage over time [NI]
@@ -119,6 +120,12 @@ public class Weapon : MonoBehaviour {
                 p.GetComponent<Rigidbody>().velocity = new Vector3(-.2f, 0.9f, 0) * def.velocity;
                 p = MakeProjectile();
                 p.GetComponent<Rigidbody>().velocity = new Vector3(.2f, 0.9f, 0) * def.velocity;
+                break;
+
+            case WeaponType.bomb:
+                p = MakeProjectile();
+                p.transform.localScale = new Vector3(2 * p.transform.localScale.x, 2 * p.transform.localScale.y, p.transform.localScale.z);
+                p.GetComponent<Rigidbody>().velocity = Vector3.up * def.velocity / 2;
                 break;
 
         }
