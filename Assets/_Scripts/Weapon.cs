@@ -10,8 +10,9 @@ public enum WeaponType
     blaster, // A simple blaster
     spread, // Two shots simultaneously
     phaser, // Shots that move in waves [NI]
-    missile, // Homing missiles [NI]
+    missile, // Bombs [TESTING]
     laser, // Damage over time [NI]
+    gold, // POINTS
     shield // Raise shieldLevel
 }
 

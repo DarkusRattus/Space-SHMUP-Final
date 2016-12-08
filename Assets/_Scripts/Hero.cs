@@ -131,6 +131,10 @@ public class Hero : MonoBehaviour {
                 shieldLevel++;
                 break;
 
+            case WeaponType.gold: // If it's GOLD
+                UIManager.S.AddScore(UIManager.S.bonusScore);
+                break;
+
             default: // If it's any Weapon PowerUp
                 // Check the current Weapon type
                 if (pu.type == weapons[0].type)

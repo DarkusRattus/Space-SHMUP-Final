@@ -13,9 +13,11 @@ public class Main : MonoBehaviour {
     public float enemySpawnPadding = 1.5f;
     public WeaponDefinition[] weaponDefinitions;
     public GameObject prefabPowerUp;
+    public GameObject prefabFloatingScore;
     public WeaponType[] powerUpFrequency = new WeaponType[] { WeaponType.blaster,
                                                               WeaponType.blaster,
                                                               WeaponType.spread,
+                                                              WeaponType.gold,
                                                               WeaponType.shield     };
 
     public bool ___________;

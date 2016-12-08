@@ -25,7 +25,6 @@ public class Enemy_4 : Enemy
     public float timeStart; // Birth time for this Enemy_4
     public float duration = 4; // Duration of movement 
     public Part[] parts; // The array of ship parts
-    public int score = 55;
 
     // Use this for initialization
     void Start()

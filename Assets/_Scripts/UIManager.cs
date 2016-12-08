@@ -8,24 +8,34 @@ using System.Collections;
 
 public class UIManager : MonoBehaviour {
 
+    public static UIManager S; // Singleton
 
     // We should access these through the inspector pane. 
     // Because I like it that way.
+    public int bonusScore = 200; // Amount of points the $ powerup gives you
     public Text scoreText; // Score text
+    public Text addedScoreText; // Added score text
     public GameObject shieldBar; // Shield health image
     public GameObject[] pauseObjects; // Collection of options on the pause screen
     public GameObject[] finishObjects; // Collection of objects on the Game Over screen
                                         
     private GameObject currentButton; // The highlighted button
+    private Color originalAddedScoreColor; // The original color of the addedScore
 
     private bool isPaused; // Are we on the pause menu?
     private bool endGameTriggered; // Has the Game Over screen shown up yet?
     private float shieldLength; // Original shield vector length
 
+    void Awake()
+    {
+        S = this;
+    }
+
     // Use this for initialization
     void Start()
     {
         shieldLength = shieldBar.transform.localScale.x;
+        originalAddedScoreColor = addedScoreText.GetComponent<Text>().color;
         Time.timeScale = 1;
         isPaused = false;
         endGameTriggered = false;
@@ -139,6 +149,29 @@ public class UIManager : MonoBehaviour {
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
+    // Update the score
+    public void AddScore(int points)
+    {
+        Hero.S.score += points;
+        addedScoreText.GetComponent<Text>().text = "+" + points;
+        StartCoroutine(addUpdate(2.5f));
+    }
+
+    IEnumerator addUpdate(float seconds)
+    {
+        addedScoreText.GetComponent<Text>().color = originalAddedScoreColor; // Reset the color / alpha
+        float alpha = addedScoreText.GetComponent<Text>().color.a; // Grab that alpha
+        for (float t = 0.0f; t < 1.0f; t += Time.deltaTime / seconds)
+        {
+            Color newColor = new Color(220, 255, 0, Mathf.Lerp(alpha, 0, t));
+            addedScoreText.GetComponent<Text>().color = newColor;
+            yield return null;
+        }
+        yield return new WaitForSeconds(seconds);
+        addedScoreText.GetComponent<Text>().text = "";
+    }
+
 
     // Pause control
     public void pauseControl()
