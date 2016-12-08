@@ -23,6 +23,7 @@ public class Main : MonoBehaviour {
     public WeaponType[] activeWeaponTypes;
     public float enemySpawnRate; // Delay between enemy spawns
 
+
     void Awake()
     {
         S = this;

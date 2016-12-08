@@ -9,6 +9,7 @@ public class Hero : MonoBehaviour {
 
 	// These fields control the movement of the ship
 	public float speed = 30;
+    public float score = 0;
     public float maxShieldLevel = 4;
 	public float rollMult = -45;
 	public float pitchMult = 30;

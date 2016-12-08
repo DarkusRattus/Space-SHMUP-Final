@@ -109,6 +109,7 @@ public class Enemy : MonoBehaviour {
                     // Tell the Main singleton that this ship has been destroyed
                     Main.S.ShipDestroyed(this);
                     // Destroy this Enemy
+                    Hero.S.score += this.score;
                     Destroy(this.gameObject);
                 }
                 Destroy(other);

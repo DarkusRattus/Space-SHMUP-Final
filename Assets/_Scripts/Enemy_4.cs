@@ -6,34 +6,35 @@ using System.Collections;
 public class Part
 {
     // These three fields need to be defined in the inspector pane 
-    public string       name; // The name of this part
-    public float        health; // The amount of health this part has 
-    public string[]     protectedBy; // The other pars that protect this 
+    public string name; // The name of this part
+    public float health; // The amount of health this part has 
+    public string[] protectedBy; // The other pars that protect this 
 
     // These two fields are set automatically in Start()
     // Caching like this makes it faster and easier to find these later 
-    public GameObject    go;  // This GameObject of this part 
-    public Material      mat; // The Material to show damage 
-
+    public GameObject go;  // This GameObject of this part 
+    public Material mat; // The Material to show damage 
 }
 
-public class Enemy_4 : Enemy {
+public class Enemy_4 : Enemy
+{
     // Enemy_4 will start Offscreeen and then pick a random point on screen to move to. 
     // Once it has arrived, it will pick another random point and continute until the player has shot it down
 
     public Vector3[] points; // Stores p0 & p1 for interpoilation 
     public float timeStart; // Birth time for this Enemy_4
     public float duration = 4; // Duration of movement 
-    public Part[] parts; // The array of ship parts 
+    public Part[] parts; // The array of ship parts
+    public int score = 55;
 
     // Use this for initialization
-    void Start() {
+    void Start()
+    {
         points = new Vector3[2];
         // There is already an intial position chose by Main.Spawn Enemy()
         // So add it to points as this intial p0 & p1
         points[0] = pos;
         points[1] = pos;
-
         InitMovement();
 
         // Cache gameObject & material of each part in parts 
@@ -49,6 +50,7 @@ public class Enemy_4 : Enemy {
         }
     }
 
+
     void InitMovement()
     {
         // pick a new point to move that is on screen 
@@ -57,26 +59,29 @@ public class Enemy_4 : Enemy {
         Bounds cBounds = Utils.camBounds;
         p1.x = Random.Range(cBounds.min.x + esp, cBounds.max.x - esp);
         p1.y = Random.Range(cBounds.min.y + esp, cBounds.max.y - esp);
-         
+
         points[0] = points[1]; // Shift points [1] to points [0]
         points[1] = p1; ; // Pass p1 as points [1]
 
-        // Reset the time 
+        // Reset the time
         timeStart = Time.time;
     }
+
     public override void Move()
     {
         // This completely overrides Enemy.Move() with linear interpolation
-
         float u = (Time.time - timeStart) / duration;
         if (u >= 1)
-        { 
+        {
+            InitMovement();
             // Then initialize movement to a new point 
             u = 0;
         }
+
         u = 1 - Mathf.Pow(1 - u, 2); // Apply ease out easing to u 
         pos = (1 - u) * points[0] + u * points[1]; // Simple linear interpolation 
     }
+
     // This will override the OnCollisionEnter that is part of Enemy.cs
     // Because of the way the Monobehaviour declares common Unity functions
     // Like OncollisionEnter(), the override keyword is not necessary 
@@ -91,33 +96,35 @@ public class Enemy_4 : Enemy {
                 // This stop the player from shotting before they are visable
                 bounds.center = transform.position + boundsCenterOffset;
                 if (bounds.extents == Vector3.zero || Utils.ScreenBoundsCheck(bounds, BoundsTest.offScreen) != Vector3.zero)
-                    {
-                        Destroy(other);
-                        break;
-                    }
-                // Hurt this enemy 
-                // Find the gameObject that was hit
-                /* 
-                 * The collision coll has contacts [], an array Contact points 
-                 * Because there was a collision, we're guaranteed there is at 
-                 * Least a contacts [0] and contact points have reference to 
-                 * his collider, which will be the collider for the part off the 
-                 * Enemy_5 that was hit 
-                */
-                GameObject goHit = coll.contacts[0].thisCollider.gameObject;
+                {
+                    Destroy(other); // Destory the ProjectileHero
+                    break;
+                }
+
+            // Hurt this enemy 
+            // Find the gameObject that was hit
+            /* 
+             * The collision coll has contacts [], an array Contact points 
+             * Because there was a collision, we're guaranteed there is at 
+             * Least a contacts [0] and contact points have reference to 
+             * his collider, which will be the collider for the part off the 
+             * Enemy_5 that was hit 
+            */
+
+            GameObject goHit = coll.contacts[0].thisCollider.gameObject;
                 Part prtHit = FindPart(goHit);
                 if (prtHit == null)
-                { 
+                {
                     /* If prtHit wasnt found...
-                       ...then it's usually because, very rarely, thisCollider on
-                       contacts [0] will be the ProjectileHeroi instead of the ship
-                       part. If so, just look for other Collider instead
-                    */
-                    goHit = coll.contacts[0].thisCollider.gameObject;
+                    ...then it's usually because, very rarely, thisCollider on
+                    contacts[0] will be the ProjectileHero instead of the ship
+                    part. If so, just look for other Collider instead
+                     */
+                    goHit = coll.contacts[0].otherCollider.gameObject;
                     prtHit = FindPart(goHit);
                 }
-                
-                //Check whether this part is still protected 
+
+                // Check whether this part is still protected 
                 if (prtHit.protectedBy != null)
                 {
                     foreach (string s in prtHit.protectedBy)
@@ -131,9 +138,11 @@ public class Enemy_4 : Enemy {
                         }
                     }
                 }
+
                 // It's not protected, so make it take damage
                 // Get the damage amount from the Projectile.type & Main.W_DEFS
                 prtHit.health -= Main.W_DEFS[p.type].damageOnHit;
+
                 // Show damage on the part 
                 ShowLocalizedDamage(prtHit.mat);
                 if (prtHit.health <= 0)
@@ -141,30 +150,32 @@ public class Enemy_4 : Enemy {
                     // Instead of Destroying this enemy, diable the damaged part 
                     prtHit.go.SetActive(false);
                 }
+
                 // Check to see if the whole ship is destroted 
-                bool allDestroyed = true; // Assume itis destroyed 
+                bool allDestroyed = true; // Assume it is destroyed 
                 foreach (Part prt in parts)
                 {
                     if (!Destroyed(prt))
-                    {                           
+                    {
                         // if a part still exists 
                         allDestroyed = false; // ...change allDestroyed to false
                         break;                // and break out of the foreach loop
                     }
                 }
+                // If it is completely destoyed 
+                // Tell the main singleton that this ship has been destoyed 
                 if (allDestroyed)
-                { 
-                    // If it is completely destoyed 
-                    // Tell the main singleton that this ship has been destoyed 
+                {
                     Main.S.ShipDestroyed(this);
                     // Destoy this Enemy
                     Destroy(this.gameObject);
                 }
-                Destroy(other); // Destory the ProjectileHero
+
+                Destroy(other);
                 break;
         }
-
     }
+
     // These two functions find a part in parts baes on name or GameObject 
     Part FindPart(string n)
     {
@@ -172,10 +183,10 @@ public class Enemy_4 : Enemy {
         {
             if (prt.name == n)
             {
-                return (prt);
+                return prt;
             }
         }
-        return (null);
+        return null;
     }
     Part FindPart(GameObject go)
     {
@@ -183,22 +194,23 @@ public class Enemy_4 : Enemy {
         {
             if (prt.go == go)
             {
-                return (prt);
+                return prt;
             }
         }
-        return (null);
+        return null;
     }
 
     //These functions return true if the part has been destroyed 
     bool Destroyed(GameObject go)
     {
-        return (Destroyed(FindPart(go)));
+        return Destroyed(FindPart(go));
     }
-    bool Destroyed (string n)
+    bool Destroyed(string n)
     {
-        return (Destroyed(FindPart(n)));
+        return Destroyed(FindPart(n));
     }
-    bool Destroyed (Part prt)
+
+    bool Destroyed(Part prt)
     {
         if (prt == null)
         {
@@ -210,8 +222,8 @@ public class Enemy_4 : Enemy {
         return (prt.health <= 0);
     }
 
-   //This changes the color just one Part to red instead of the whole ship
-   void ShowLocalizedDamage (Material m)
+    //This changes the color just one Part to red instead of the whole ship
+    void ShowLocalizedDamage(Material m)
     {
         m.color = Color.red;
         remainingDamageFrames = showDamageForFrames;

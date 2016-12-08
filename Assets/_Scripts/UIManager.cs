@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour {
 
     // We should access these through the inspector pane. 
     // Because I like it that way.
+    public Text scoreText; // Score text
     public GameObject shieldBar; // Shield health image
     public GameObject[] pauseObjects; // Collection of options on the pause screen
     public GameObject[] finishObjects; // Collection of objects on the Game Over screen
@@ -126,6 +127,8 @@ public class UIManager : MonoBehaviour {
         shieldBar.transform.localScale = new Vector3(shieldLength * (Hero.S.shieldLevel / Hero.S.maxShieldLevel),
                                                         shieldBar.transform.localScale.y,
                                                         shieldBar.transform.localScale.z);
+        scoreText.text = "Score: " + Hero.S.score;
+
 
     }
 
