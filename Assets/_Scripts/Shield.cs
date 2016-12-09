@@ -14,7 +14,8 @@ public class Shield : MonoBehaviour {
 		int currLevel = Mathf.FloorToInt (Hero.S.shieldLevel);
 		// If this is different from levelShown...
 		if (levelShown != currLevel) {
-			levelShown = currLevel;
+            if (currLevel >= 4) levelShown = 4;
+            else levelShown = currLevel;
 			Material mat = this.GetComponent<Renderer>().material;
 			// Adjust the texture offset to show different shield level
 			mat.mainTextureOffset = new Vector2 (0.2f * levelShown, 0);
