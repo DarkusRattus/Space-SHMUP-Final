@@ -57,133 +57,17 @@ public class UIManager : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        // Pause dat shit
-        if (Input.GetKeyDown(KeyCode.Escape))
-        { 
-            if (Time.timeScale == 1 && Hero.S.shieldLevel >= 0)
-            {
-                Time.timeScale = 0; // STOP TIME
-                showPaused(); // Show the buttons
+        // This handles menu navigation
+        MenuNav();
 
-                currentButton = pauseObjects[0]; // Assign the current button to be the first button on the pause screen
-                EventSystem.current.SetSelectedGameObject(currentButton); // This is the selected button
-
-                isPaused = true; // We iz paused
-            }
-            else if (Time.timeScale == 0 && Hero.S.shieldLevel >= 0)
-            {
-                if (isOptions) // Are we in the Options menu?
-                {
-                    hideOptions(); // Hide the Options buttons
-                }
-                else
-                {
-                    Time.timeScale = 1; // Start time again
-                    hidePaused(); // Hide the buttons
-                    isPaused = false; // No longer paused
-                    isOptions = false; // Just in case
-                }
-            }
-        }
-        
         // Player is kill (RIP in piece)
         if (Time.timeScale == 0 && Hero.S.shieldLevel < 0)
         {
             showFinished(); // Show the End Game buttons
-            if (!endGameTriggered)
-            {
-                currentButton = finishObjects[0]; // Assign the current button to the first button on the Game Over screen
-                EventSystem.current.SetSelectedGameObject(currentButton); // Set the currett button
-                endGameTriggered = true; // The game has ended
-            }
+            endGameTriggered = true;
         }
 
-        // Navigate through the buttons
-        // THIS CODE IS A MESS LIKE ME HAHAHAHA
-        // Note: two buttons can be highlighted at the same time if you're using a mouse at the same time as your keyboard
-        // I'm going to call this a feature
-        if (Time.timeScale == 0 && (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.UpArrow)))
-        {
-            int currentPos; // Position of the currently selected button
-            int pos = 0; // Temp variable for iteration
-            bool downKey = (Input.GetKeyDown(KeyCode.DownArrow)); // Are we pressing the down key?
-
-            //if (Input.GetKeyDown(KeyCode.DownArrow)) downKey = true;
-           // else downKey = false;
-           
-            if (isPaused && !isOptions) // Are we paused?
-            { 
-                foreach (GameObject button in pauseObjects)
-                {
-                    if (currentButton == button)
-                    {
-                        currentPos = pos; // Assign the button to the position
-                        break; // We found the button, get outta here
-                    }
-                    pos++;
-                }
-                // The last object in pauseObjects is going to be UI Text for the PAUSED label
-                // Because I'm lazy...so putting at Length-2 skips it
-                // If we're at Length-2, we're on the last button. So we're going to start at the first.
-                if (pos >= pauseObjects.Length - 2 && downKey) currentPos = 0;
-                else if (downKey) currentPos = pos + 1;
-                else if (pos == 0) currentPos = pauseObjects.Length - 2;
-                else currentPos = pos - 1;
-                currentButton = pauseObjects[currentPos]; // Assign the current button
-            }
-            else if (isOptions) // We're in the Options menu
-            { 
-                foreach (GameObject button in optionsObjects)
-                {
-                    if (currentButton == button)
-                    {
-                        currentPos = pos; // Assign the button to the position
-                        break; // We found the button, get outta here
-                    }
-                    pos++;
-                }
-                // Length-3 instead of Length-2, cuz we have the Quad and the UI Text
-                if (pos >= optionsObjects.Length - 3 && downKey) currentPos = 0;
-                else if (downKey) currentPos = pos + 1;
-                else if (pos == 0) currentPos = optionsObjects.Length - 3;
-                else currentPos = pos - 1;
-                currentButton = optionsObjects[currentPos]; // Assign the current button
-                // Let us let the player know which non-button option is selected
-                if (currentButton.GetComponent<Toggle>() != null)
-                {
-                    currentButton.GetComponentInChildren<Text>().color = Color.yellow;
-                }
-                foreach (GameObject button in optionsObjects)
-                {
-                    if (button != currentButton && button.GetComponent<Toggle>() != null)
-                    {
-                        button.GetComponentInChildren<Text>().color = Color.white;
-                    }
-                }
-            }
-            else // We're not paused...so we're on the Game Over screen.
-            {
-                // Iterate through the objects on the Game Over screen
-                foreach (GameObject button in finishObjects)
-                {
-                    if (currentButton == button)
-                    {
-                        currentPos = pos;
-                        break;
-                    }
-                    pos++;
-                }
-                // Same thing as before
-                if (pos >= finishObjects.Length - 2 && downKey) currentPos = 0;
-                else if (downKey) currentPos = pos + 1;
-                else if (pos == 0) currentPos = finishObjects.Length - 2;
-                else currentPos = pos - 1;
-                
-                currentButton = finishObjects[currentPos]; // Assign the current button
-            }
-            EventSystem.current.SetSelectedGameObject(currentButton);  // Call the method that actually selects the button
-        }
-
+        // Handle the ShieldBar
         if (Hero.S.shieldLevel < 100)
         {
             shieldBar.transform.localScale = new Vector3(shieldLength * (Hero.S.shieldLevel / Hero.S.maxShieldLevel),
@@ -194,6 +78,8 @@ public class UIManager : MonoBehaviour {
         {
             shieldBar.transform.localScale = new Vector3(shieldLength, shieldBar.transform.localScale.y, shieldBar.transform.localScale.z);
         }
+
+        // Show the score
         scoreText.text = "Score: " + Hero.S.score;
 
         // Display the invincible text if the Hero is invincible
@@ -258,6 +144,8 @@ public class UIManager : MonoBehaviour {
         {
             g.SetActive(true);
         }
+        currentButton = pauseObjects[0]; // Assign the current button to be the first button on the pause screen
+        EventSystem.current.SetSelectedGameObject(currentButton); // Set the current button
     }
 
     // Hide the Paused UI elements
@@ -281,6 +169,7 @@ public class UIManager : MonoBehaviour {
         {
             g.SetActive(true);
         }
+        EventSystem.current.SetSelectedGameObject(currentButton); // Set the current button
     }
 
     // Hide the Options UI elements
@@ -297,6 +186,9 @@ public class UIManager : MonoBehaviour {
     // Shows the End Game objects
     public void showFinished()
     {
+        currentButton = finishObjects[0]; // Assign the current button to the first button on the Game Over screen
+        EventSystem.current.SetSelectedGameObject(currentButton); // Set the current button
+        endGameTriggered = true; // The game has ended
         foreach (GameObject g in finishObjects)
         {
             g.SetActive(true);
@@ -313,13 +205,133 @@ public class UIManager : MonoBehaviour {
         }
     }
 
+
+    // Handles all menu navigation
+    public void MenuNav()
+    {
+        // Pause dat shit
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (Time.timeScale == 1 && Hero.S.shieldLevel >= 0)
+            {
+                Time.timeScale = 0; // STOP TIME
+                showPaused(); // Show the buttons
+
+                EventSystem.current.SetSelectedGameObject(currentButton); // This is the selected button
+
+                isPaused = true; // We iz paused
+            }
+            else if (Time.timeScale == 0 && Hero.S.shieldLevel >= 0 && !endGameTriggered)
+            {
+                if (isOptions) // Are we in the Options menu?
+                {
+                    hideOptions(); // Hide the Options buttons
+                }
+                else
+                {
+                    Time.timeScale = 1; // Start time again
+                    hidePaused(); // Hide the buttons
+                    isPaused = false; // No longer paused
+                    isOptions = false; // Just in case
+                }
+            }
+        }
+
+        // Navigate through the buttons
+        // THIS CODE IS A MESS LIKE ME HAHAHAHA
+        // Note: two buttons can be highlighted at the same time if you're using a mouse at the same time as your keyboard
+        // I'm going to call this a feature
+        if (Time.timeScale == 0 && (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.UpArrow)))
+        {
+            int currentPos; // Position of the currently selected button
+            int pos = 0; // Temp variable for iteration
+            bool downKey = (Input.GetKeyDown(KeyCode.DownArrow)); // Are we pressing the down key?
+
+            //if (Input.GetKeyDown(KeyCode.DownArrow)) downKey = true;
+            // else downKey = false;
+
+            if (isPaused && !isOptions) // Are we paused?
+            {
+                foreach (GameObject button in pauseObjects)
+                {
+                    if (currentButton == button)
+                    {
+                        currentPos = pos; // Assign the button to the position
+                        break; // We found the button, get outta here
+                    }
+                    pos++;
+                }
+                // The last object in pauseObjects is going to be UI Text for the PAUSED label
+                // Because I'm lazy...so putting at Length-2 skips it
+                // If we're at Length-2, we're on the last button. So we're going to start at the first.
+                if (pos >= pauseObjects.Length - 2 && downKey) currentPos = 0;
+                else if (downKey) currentPos = pos + 1;
+                else if (pos == 0) currentPos = pauseObjects.Length - 2;
+                else currentPos = pos - 1;
+                currentButton = pauseObjects[currentPos]; // Assign the current button
+            }
+            else if (isOptions) // We're in the Options menu
+            {
+                foreach (GameObject button in optionsObjects)
+                {
+                    if (currentButton == button)
+                    {
+                        currentPos = pos; // Assign the button to the position
+                        break; // We found the button, get outta here
+                    }
+                    pos++;
+                }
+                // Length-3 instead of Length-2, cuz we have the Quad and the UI Text
+                if (pos >= optionsObjects.Length - 3 && downKey) currentPos = 0;
+                else if (downKey) currentPos = pos + 1;
+                else if (pos == 0) currentPos = optionsObjects.Length - 3;
+                else currentPos = pos - 1;
+                currentButton = optionsObjects[currentPos]; // Assign the current button
+                // Let us let the player know which non-button option is selected
+                if (currentButton.GetComponent<Toggle>() != null)
+                {
+                    currentButton.GetComponentInChildren<Text>().color = Color.yellow;
+                }
+                foreach (GameObject button in optionsObjects)
+                {
+                    if (button != currentButton && button.GetComponent<Toggle>() != null)
+                    {
+                        button.GetComponentInChildren<Text>().color = Color.white;
+                    }
+                }
+            }
+            else // We're not paused...so we're on the Game Over screen.
+            {
+                // Iterate through the objects on the Game Over screen
+                foreach (GameObject button in finishObjects)
+                {
+                    if (currentButton == button)
+                    {
+                        currentPos = pos;
+                        break;
+                    }
+                    pos++;
+                }
+                // Same thing as before
+                if (pos >= finishObjects.Length - 2 && downKey) currentPos = 0;
+                else if (downKey) currentPos = pos + 1;
+                else if (pos == 0) currentPos = finishObjects.Length - 2;
+                else currentPos = pos - 1;
+
+                currentButton = finishObjects[currentPos]; // Assign the current button
+            }
+            EventSystem.current.SetSelectedGameObject(currentButton);  // Call the method that actually selects the button
+        }
+
+    }
+
     // Sets the sound settings
     // For 'choice', 1 is Sound Effects, 2 is Backgound Music, 3 is Copyright Music
-    public void ConfigureAudio(int choice, bool enabled)
+    public void ConfigureAudio(int choice)
     {
-        if (choice == 1) AudioManager.S.playSounds = enabled;
-        else if (choice == 2) AudioManager.S.playMusic = enabled;
-        else if (choice == 3) AudioManager.S.playCopyrightSounds = enabled;
+        if (choice == 1) AudioManager.S.playSounds = !AudioManager.S.playSounds;
+        else if (choice == 2) AudioManager.S.playMusic = !AudioManager.S.playMusic;
+        else if (choice == 3) AudioManager.S.playCopyrightSounds = !AudioManager.S.playCopyrightSounds;
     }
 
 }
