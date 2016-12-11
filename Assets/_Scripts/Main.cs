@@ -18,6 +18,8 @@ public class Main : MonoBehaviour {
                                                               WeaponType.blaster,
                                                               WeaponType.spread,
                                                               WeaponType.gold,
+                                                              WeaponType.invincibility,
+                                                              WeaponType.invincibility,
                                                               WeaponType.shield     };
 
     public bool ___________;

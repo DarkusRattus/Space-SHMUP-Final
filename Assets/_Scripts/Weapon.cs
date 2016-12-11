@@ -13,6 +13,7 @@ public enum WeaponType
     missile, // Bombs [TESTING]
     laser, // Damage over time [NI]
     gold, // POINTS
+    invincibility, // INVINCIBLEEEE
     shield // Raise shieldLevel
 }
 

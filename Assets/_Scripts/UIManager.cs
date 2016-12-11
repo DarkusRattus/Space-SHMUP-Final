@@ -10,20 +10,27 @@ public class UIManager : MonoBehaviour {
 
     public static UIManager S; // Singleton
 
-    // We should access these through the inspector pane. 
+    // We should access these through the Inspector pane. 
     // Because I like it that way.
     public int bonusScore = 200; // Amount of points the $ powerup gives you
     public Text scoreText; // Score text
     public Text addedScoreText; // Added score text
     public GameObject shieldBar; // Shield health image
+    public GameObject invText; // The countdown when you grab an invulnerability PowerUp
+
+    // These should be assigned in the Inspector pane 
     public GameObject[] pauseObjects; // Collection of options on the pause screen
     public GameObject[] finishObjects; // Collection of objects on the Game Over screen
+    public GameObject[] helpObjects; // Collection of objects on the Help screen
+    public GameObject[] optionsObjects; // Collection of objects on the Options screen
                                         
     private GameObject currentButton; // The highlighted button
     private Color originalAddedScoreColor; // The original color of the addedScore
 
-    private bool isPaused; // Are we on the pause menu?
-    private bool endGameTriggered; // Has the Game Over screen shown up yet?
+    private bool isPaused = false; // Are we on the pause menu?
+    private bool isOptions = false; // Are we on the options menu?
+    private bool isHelp = false; // Are we on the help menu?
+    private bool endGameTriggered = false; // Has the Game Over screen shown up yet?
     private float shieldLength; // Original shield vector length
 
     void Awake()
@@ -34,11 +41,17 @@ public class UIManager : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        shieldLength = shieldBar.transform.localScale.x;
-        originalAddedScoreColor = addedScoreText.GetComponent<Text>().color;
-        Time.timeScale = 1;
-        isPaused = false;
-        endGameTriggered = false;
+        // Initialize some things
+        scoreText = GameObject.Find("Score").GetComponent<Text>();
+        addedScoreText = GameObject.Find("AddedPoints").GetComponent<Text>();
+        shieldBar = GameObject.Find("HealthMeter");
+        invText = GameObject.Find("InvText");
+
+
+        shieldLength = shieldBar.transform.localScale.x; // Get the length of the shield bar
+        originalAddedScoreColor = addedScoreText.GetComponent<Text>().color; // Grab the original score of AddedScore
+        invText.SetActive(false); // The Hero is not invulnerable as of the beginning of this countdown
+        Time.timeScale = 1; // Game is running at normal time (not paused)
         hidePaused();
         hideFinished();
     }
@@ -70,12 +83,12 @@ public class UIManager : MonoBehaviour {
         // Player is kill (RIP in piece)
         if (Time.timeScale == 0 && Hero.S.shieldLevel < 0)
         {
-            showFinished();
+            showFinished(); // Show the End Game buttons
             if (!endGameTriggered)
             {
                 currentButton = finishObjects[0]; // Assign the current button to the first button on the Game Over screen
-                EventSystem.current.SetSelectedGameObject(currentButton);
-                endGameTriggered = true; 
+                EventSystem.current.SetSelectedGameObject(currentButton); // Set the currett button
+                endGameTriggered = true; // The game has ended
             }
 
         }
@@ -88,9 +101,10 @@ public class UIManager : MonoBehaviour {
         {
             int currentPos; // Position of the currently selected button
             int pos = 0; // Temp variable for iteration
-            bool downKey; // Are we working with the up key or down key?
-            if (Input.GetKeyDown(KeyCode.DownArrow)) downKey = true;
-            else downKey = false;
+            bool downKey = (Input.GetKeyDown(KeyCode.DownArrow)); // Are we pressing the down key?
+
+            //if (Input.GetKeyDown(KeyCode.DownArrow)) downKey = true;
+           // else downKey = false;
            
             if (isPaused) // Are we paused?
             { 
@@ -134,12 +148,30 @@ public class UIManager : MonoBehaviour {
             }
             EventSystem.current.SetSelectedGameObject(currentButton);  // Call the method that actually selects the button
         }
-        shieldBar.transform.localScale = new Vector3(shieldLength * (Hero.S.shieldLevel / Hero.S.maxShieldLevel),
+
+        if (Hero.S.shieldLevel < 100)
+        {
+            shieldBar.transform.localScale = new Vector3(shieldLength * (Hero.S.shieldLevel / Hero.S.maxShieldLevel),
                                                         shieldBar.transform.localScale.y,
                                                         shieldBar.transform.localScale.z);
+        }
+        else
+        {
+            shieldBar.transform.localScale = new Vector3(shieldLength, shieldBar.transform.localScale.y, shieldBar.transform.localScale.z);
+        }
         scoreText.text = "Score: " + Hero.S.score;
 
-
+        // Display the invincible text if the Hero is invincible
+        if (Hero.S.invincible)
+        {
+            invText.SetActive(true);
+            shieldBar.SetActive(false);
+        }
+        else
+        {
+            invText.SetActive(false);
+            shieldBar.SetActive(true);
+        }
     }
 
 
@@ -150,6 +182,8 @@ public class UIManager : MonoBehaviour {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    //
+
     // Update the score
     public void AddScore(int points)
     {
@@ -158,7 +192,7 @@ public class UIManager : MonoBehaviour {
         StartCoroutine(addUpdate(2.5f));
     }
 
-    IEnumerator addUpdate(float seconds)
+    private IEnumerator addUpdate(float seconds)
     {
         addedScoreText.GetComponent<Text>().color = originalAddedScoreColor; // Reset the color / alpha
         float alpha = addedScoreText.GetComponent<Text>().color.a; // Grab that alpha
@@ -213,6 +247,7 @@ public class UIManager : MonoBehaviour {
         {
             g.SetActive(true);
         }
+        shieldBar.SetActive(false);
     }
 
     // Hides the End Game objects

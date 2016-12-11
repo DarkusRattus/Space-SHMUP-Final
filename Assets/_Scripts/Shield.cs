@@ -20,7 +20,11 @@ public class Shield : MonoBehaviour {
 			// Adjust the texture offset to show different shield level
 			mat.mainTextureOffset = new Vector2 (0.2f * levelShown, 0);
 		}
-        if(currLevel / Hero.S.maxShieldLevel >= .75)
+        if (Hero.S.invincible)
+        {
+            this.GetComponent<Renderer>().material.color = new Color(255, 0, 255, 0);
+        }
+        else if(currLevel / Hero.S.maxShieldLevel >= .75)
         {
             this.GetComponent<Renderer>().material.color = Color.green;
         }

@@ -14,6 +14,10 @@ public class Hero : MonoBehaviour {
 	public float rollMult = -45;
 	public float pitchMult = 30;
 
+    public bool invincible = false; // for the invincibility PowerUp
+    public float invulnerableTime = 15f; // invincibility lasts for x seconds
+    public GameObject invParticles; // Particle effect for invulnerability 
+
 
 	// Ship status information
     [SerializeField]
@@ -42,6 +46,9 @@ public class Hero : MonoBehaviour {
         // Reset the weapons to start _Hero with 1 blaster
         ClearWeapons();
         weapons[0].SetType(WeaponType.blaster);
+
+        invParticles = GameObject.Find("InvParticles");
+        invParticles.SetActive(false); // You are not invincible at the game start
     }
 
 	// Update is called once per frame
@@ -98,7 +105,8 @@ public class Hero : MonoBehaviour {
             {
                 // If the Shield was triggered by an enemy
                 // Decrease the level of the shield by 1
-                shieldLevel--;
+                if (!invincible) shieldLevel--;
+                if (invincible) UIManager.S.AddScore(go.GetComponent<Enemy>().score);
                 // Destroy the enemy
                 Destroy(go);
             }
@@ -133,6 +141,10 @@ public class Hero : MonoBehaviour {
 
             case WeaponType.gold: // If it's GOLD
                 UIManager.S.AddScore(UIManager.S.bonusScore);
+                break;
+
+            case WeaponType.invincibility: // If it's the invincibility one
+                StartCoroutine(invincibilityCountdown());
                 break;
 
             default: // If it's any Weapon PowerUp
@@ -178,6 +190,18 @@ public class Hero : MonoBehaviour {
         {
             w.SetType(WeaponType.none);
         }
+    }
+
+    // Invincibility countdown
+    private IEnumerator invincibilityCountdown()
+    {
+        invincible = true; 
+        invParticles.SetActive(true); // Show the invincibility particles
+
+        yield return new WaitForSeconds(invulnerableTime); // Wait for the invincibility time to run out
+
+        invincible = false;
+        invParticles.SetActive(false); // Hide the invincibility particles
     }
 
     public float shieldLevel
