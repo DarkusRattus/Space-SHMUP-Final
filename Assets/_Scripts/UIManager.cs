@@ -57,14 +57,12 @@ public class UIManager : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        // This handles menu navigation
         MenuNav();
 
         // Player is kill (RIP in piece)
-        if (Time.timeScale == 0 && Hero.S.shieldLevel < 0)
-        {
-            showFinished(); // Show the End Game buttons
-            endGameTriggered = true;
+        if (Time.timeScale == 0 && Hero.S.shieldLevel < 0 && !endGameTriggered)
+        { 
+            showFinished();
         }
 
         // Handle the ShieldBar
@@ -186,14 +184,14 @@ public class UIManager : MonoBehaviour {
     // Shows the End Game objects
     public void showFinished()
     {
-        currentButton = finishObjects[0]; // Assign the current button to the first button on the Game Over screen
-        EventSystem.current.SetSelectedGameObject(currentButton); // Set the current button
-        endGameTriggered = true; // The game has ended
+        endGameTriggered = true;
         foreach (GameObject g in finishObjects)
         {
             g.SetActive(true);
         }
         shieldBar.SetActive(false);
+        currentButton = finishObjects[0]; // Assign the current button to the first button on the Game Over screen
+        EventSystem.current.SetSelectedGameObject(currentButton); // Set the current button
     }
 
     // Hides the End Game objects
@@ -208,7 +206,7 @@ public class UIManager : MonoBehaviour {
 
     // Handles all menu navigation
     public void MenuNav()
-    {
+    { 
         // Pause dat shit
         if (Input.GetKeyDown(KeyCode.Escape))
         {
