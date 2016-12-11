@@ -18,6 +18,7 @@ public class AudioManager : MonoBehaviour {
     public bool playSounds = true; // Enable sound effects
     public bool playCopyrightSounds = true; // Shh
 
+    public AudioSource backgroundMusicS;
 
     void Awake()
     {
@@ -25,8 +26,17 @@ public class AudioManager : MonoBehaviour {
     }
     
 	// Use this for initialization
-	void Start () {
-	
+	void Start ()
+    {
+        backgroundMusicS = new AudioSource();
+        GetComponent<AudioSource>().clip = backgroundMusic;
+        GetComponent<AudioSource>().loop = true;
+
+        if (playMusic)
+        {
+            GetComponent<AudioSource>().Play();
+
+        }
 	}
 	
 	// Update is called once per frame

@@ -144,6 +144,14 @@ public class Hero : MonoBehaviour {
                 break;
 
             case WeaponType.invincibility: // If it's the invincibility one
+                if (AudioManager.S.playMusic && AudioManager.S.playCopyrightSounds)
+                {
+                    AudioManager.S.GetComponent<AudioSource>().Stop();
+                }
+                if (AudioManager.S.playCopyrightSounds)
+                {
+                    GetComponent<AudioSource>().Play();
+                }
                 StartCoroutine(invincibilityCountdown());
                 break;
 
@@ -199,6 +207,15 @@ public class Hero : MonoBehaviour {
         invParticles.SetActive(true); // Show the invincibility particles
 
         yield return new WaitForSeconds(invulnerableTime); // Wait for the invincibility time to run out
+
+        if (AudioManager.S.playMusic && AudioManager.S.playCopyrightSounds)
+        {
+            AudioManager.S.GetComponent<AudioSource>().Play();
+        }
+        if (AudioManager.S.playCopyrightSounds)
+        {
+            GetComponent<AudioSource>().Stop();
+        }
 
         invincible = false;
         invParticles.SetActive(false); // Hide the invincibility particles
