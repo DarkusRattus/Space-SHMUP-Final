@@ -21,18 +21,16 @@ public class UIManager : MonoBehaviour {
     // These should be assigned in the Inspector pane 
     public GameObject[] pauseObjects; // Collection of options on the pause screen
     public GameObject[] finishObjects; // Collection of objects on the Game Over screen
-    public GameObject[] helpObjects; // Collection of objects on the Help screen
     public GameObject[] optionsObjects; // Collection of objects on the Options screen
-                                        
+    
     private GameObject currentButton; // The highlighted button
     private Color originalAddedScoreColor; // The original color of the addedScore
 
     private bool isPaused = false; // Are we on the pause menu?
     private bool isOptions = false; // Are we on the options menu?
-    private bool isHelp = false; // Are we on the help menu?
     private bool endGameTriggered = false; // Has the Game Over screen shown up yet?
     private float shieldLength; // Original shield vector length
-
+    
     void Awake()
     {
         S = this;
@@ -47,11 +45,11 @@ public class UIManager : MonoBehaviour {
         shieldBar = GameObject.Find("HealthMeter");
         invText = GameObject.Find("InvText");
 
-
         shieldLength = shieldBar.transform.localScale.x; // Get the length of the shield bar
         originalAddedScoreColor = addedScoreText.GetComponent<Text>().color; // Grab the original score of AddedScore
         invText.SetActive(false); // The Hero is not invulnerable as of the beginning of this countdown
         Time.timeScale = 1; // Game is running at normal time (not paused)
+        hideOptions(); // This will put the Paused menu up, but we'll hide it immediately after
         hidePaused();
         hideFinished();
     }
@@ -74,9 +72,17 @@ public class UIManager : MonoBehaviour {
             }
             else if (Time.timeScale == 0 && Hero.S.shieldLevel >= 0)
             {
-                Time.timeScale = 1; // Start time again
-                hidePaused(); // Hide the buttons
-                isPaused = false; // No longer paused
+                if (isOptions) // Are we in the Options menu?
+                {
+                    hideOptions(); // Hide the Options buttons
+                }
+                else
+                {
+                    Time.timeScale = 1; // Start time again
+                    hidePaused(); // Hide the buttons
+                    isPaused = false; // No longer paused
+                    isOptions = false; // Just in case
+                }
             }
         }
         
@@ -90,7 +96,6 @@ public class UIManager : MonoBehaviour {
                 EventSystem.current.SetSelectedGameObject(currentButton); // Set the currett button
                 endGameTriggered = true; // The game has ended
             }
-
         }
 
         // Navigate through the buttons
@@ -106,7 +111,7 @@ public class UIManager : MonoBehaviour {
             //if (Input.GetKeyDown(KeyCode.DownArrow)) downKey = true;
            // else downKey = false;
            
-            if (isPaused) // Are we paused?
+            if (isPaused && !isOptions) // Are we paused?
             { 
                 foreach (GameObject button in pauseObjects)
                 {
@@ -125,6 +130,36 @@ public class UIManager : MonoBehaviour {
                 else if (pos == 0) currentPos = pauseObjects.Length - 2;
                 else currentPos = pos - 1;
                 currentButton = pauseObjects[currentPos]; // Assign the current button
+            }
+            else if (isOptions) // We're in the Options menu
+            { 
+                foreach (GameObject button in optionsObjects)
+                {
+                    if (currentButton == button)
+                    {
+                        currentPos = pos; // Assign the button to the position
+                        break; // We found the button, get outta here
+                    }
+                    pos++;
+                }
+                // Length-3 instead of Length-2, cuz we have the Quad and the UI Text
+                if (pos >= optionsObjects.Length - 3 && downKey) currentPos = 0;
+                else if (downKey) currentPos = pos + 1;
+                else if (pos == 0) currentPos = optionsObjects.Length - 3;
+                else currentPos = pos - 1;
+                currentButton = optionsObjects[currentPos]; // Assign the current button
+                // Let us let the player know which non-button option is selected
+                if (currentButton.GetComponent<Toggle>() != null)
+                {
+                    currentButton.GetComponentInChildren<Text>().color = Color.yellow;
+                }
+                foreach (GameObject button in optionsObjects)
+                {
+                    if (button != currentButton && button.GetComponent<Toggle>() != null)
+                    {
+                        button.GetComponentInChildren<Text>().color = Color.white;
+                    }
+                }
             }
             else // We're not paused...so we're on the Game Over screen.
             {
@@ -182,8 +217,6 @@ public class UIManager : MonoBehaviour {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    //
-
     // Update the score
     public void AddScore(int points)
     {
@@ -207,7 +240,7 @@ public class UIManager : MonoBehaviour {
     }
 
 
-    // Pause control
+    /* Pause control
     public void pauseControl()
     {
         if (Time.timeScale == 1)
@@ -215,11 +248,8 @@ public class UIManager : MonoBehaviour {
             Time.timeScale = 0;
             showPaused();
         }
-        else if (Time.timeScale == 0)
-        {
-            hidePaused();
-        }
-    }
+        else if (Time.timeScale == 0) hidePaused();
+    }*/
 
     // Show the UI elements on the Pause screen
     public void showPaused()
@@ -237,7 +267,31 @@ public class UIManager : MonoBehaviour {
         {
             g.SetActive(false);
         }
-        Time.timeScale = 1;
+        if(!isOptions) Time.timeScale = 1;
+    }
+
+    // Show the UI elements on the Options screen
+    public void showOptions()
+    {
+        isOptions = true;
+        hidePaused(); // Hide the Paused menu while the Options menu is active
+        currentButton = optionsObjects[0]; // Pre-select the first object
+        currentButton.GetComponentInChildren<Text>().color = Color.yellow; // Let the player know the option is selected
+        foreach (GameObject g in optionsObjects)
+        {
+            g.SetActive(true);
+        }
+    }
+
+    // Hide the Options UI elements
+    public void hideOptions()
+    {
+        foreach (GameObject g in optionsObjects)
+        {
+            g.SetActive(false);
+        }
+        showPaused();
+        isOptions = false;
     }
 
     // Shows the End Game objects
@@ -257,6 +311,15 @@ public class UIManager : MonoBehaviour {
         {
             g.SetActive(false);
         }
+    }
+
+    // Sets the sound settings
+    // For 'choice', 1 is Sound Effects, 2 is Backgound Music, 3 is Copyright Music
+    public void ConfigureAudio(int choice, bool enabled)
+    {
+        if (choice == 1) AudioManager.S.playSounds = enabled;
+        else if (choice == 2) AudioManager.S.playMusic = enabled;
+        else if (choice == 3) AudioManager.S.playCopyrightSounds = enabled;
     }
 
 }

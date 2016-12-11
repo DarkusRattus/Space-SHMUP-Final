@@ -4,7 +4,7 @@ using System.Collections;
 public class Enemy : MonoBehaviour {
 	public float speed = 10f; // The speed in m/s
 	public float fireRate = 0.3f; // Seconds/shot (unused)
-	public float health = 10; 
+	public float health = 10; // Default enemy health
 	public int score = 100; // Points earned for destroying this
 
     public int showDamageForFrames = 2; // # frames to show damage
