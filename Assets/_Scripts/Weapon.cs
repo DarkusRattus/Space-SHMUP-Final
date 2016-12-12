@@ -50,6 +50,11 @@ public class Weapon : MonoBehaviour {
     public GameObject collar;
     public float lastShot; // Time last shot was fired
 
+    public AudioClip soundBlaster;
+    public AudioClip soundSpread;
+
+    private bool audioStopped = false;
+
     // Added Awake() to resolve a race condition
     void Awake()
     {
@@ -72,6 +77,15 @@ public class Weapon : MonoBehaviour {
         {
             Hero.S.fireDelegate += Fire;
         }
+
+        // Probably not needed
+        if (!AudioManager.S.playSounds) audioStopped = true;
+    }
+
+    void Update()
+    {
+        if(!AudioManager.S.playSounds && !audioStopped) audioStopped = true;
+        else if(AudioManager.S.playSounds && audioStopped) audioStopped = false;
     }
 
     public WeaponType type
@@ -112,6 +126,11 @@ public class Weapon : MonoBehaviour {
             case WeaponType.blaster:
                 p = MakeProjectile();
                 p.GetComponent<Rigidbody>().velocity = Vector3.up * def.velocity;
+                GetComponent<AudioSource>().clip = soundBlaster;
+                if (AudioManager.S.playSounds)
+                {
+                    GetComponent<AudioSource>().Play();
+                }
                 break;
 
             case WeaponType.spread:
@@ -121,6 +140,11 @@ public class Weapon : MonoBehaviour {
                 p.GetComponent<Rigidbody>().velocity = new Vector3(-.2f, 0.9f, 0) * def.velocity;
                 p = MakeProjectile();
                 p.GetComponent<Rigidbody>().velocity = new Vector3(.2f, 0.9f, 0) * def.velocity;
+                GetComponent<AudioSource>().clip = soundSpread;
+                if (AudioManager.S.playSounds)
+                {
+                    GetComponent<AudioSource>().Play();
+                }
                 break;
 
         }
@@ -146,5 +170,4 @@ public class Weapon : MonoBehaviour {
         lastShot = Time.time;
         return (p);
     }
-
 }

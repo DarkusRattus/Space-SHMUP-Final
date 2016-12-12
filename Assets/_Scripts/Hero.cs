@@ -35,6 +35,8 @@ public class Hero : MonoBehaviour {
     // Create a WeaponFileDelegate field named fireDelegate
     public WeaponFireDelegate fireDelegate;
 
+    private bool audioStopped = false;
+
 	void Awake(){
 		S = this; // Set the singleton
 		bounds = Utils.CombineBoundsOfChildren (this.gameObject);
@@ -83,7 +85,10 @@ public class Hero : MonoBehaviour {
         {
             fireDelegate();
         }
-	}
+
+        if (!AudioManager.S.playCopyrightSounds && !audioStopped) audioStopped = true;
+        else if (AudioManager.S.playCopyrightSounds && audioStopped) audioStopped = false;
+    }
 
     // This variable holds a reference to the last triggering GameObject
     public GameObject lastTriggerGo = null;
@@ -144,14 +149,14 @@ public class Hero : MonoBehaviour {
                 break;
 
             case WeaponType.invincibility: // If it's the invincibility one
-                if (AudioManager.S.playMusic && AudioManager.S.playCopyrightSounds)
-                {
-                    AudioManager.S.GetComponent<AudioSource>().Stop();
-                }
                 if (AudioManager.S.playCopyrightSounds)
                 {
-                    GetComponent<AudioSource>().Play();
+                    AudioManager.S.GetComponent<AudioSource>().Stop();
+                    if (!GetComponent<AudioSource>().isPlaying)
+                        GetComponent<AudioSource>().Play();
                 }
+                else
+                    GetComponent<AudioSource>().Stop();
                 StartCoroutine(invincibilityCountdown());
                 break;
 
@@ -177,7 +182,6 @@ public class Hero : MonoBehaviour {
                 
         }
         pu.AbsorbedBy(this.gameObject);
-        // Destroy(this.gameObject);
     }
 
     Weapon GetEmptyWeaponSlot()
@@ -208,15 +212,12 @@ public class Hero : MonoBehaviour {
 
         yield return new WaitForSeconds(invulnerableTime); // Wait for the invincibility time to run out
 
-        if (AudioManager.S.playMusic && AudioManager.S.playCopyrightSounds)
-        {
-            AudioManager.S.GetComponent<AudioSource>().Play();
-        }
         if (AudioManager.S.playCopyrightSounds)
         {
             GetComponent<AudioSource>().Stop();
+            if(AudioManager.S.playMusic)
+                AudioManager.S.GetComponent<AudioSource>().Play();
         }
-
         invincible = false;
         invParticles.SetActive(false); // Hide the invincibility particles
     }
@@ -235,8 +236,6 @@ public class Hero : MonoBehaviour {
             {
                 Destroy(this.gameObject);
                 Time.timeScale = 0;
-                // Tell Main.S to restart the game after a delay
-                // Main.S.DelayedRestart(gameRestartDelay);
             }
         }
     }
