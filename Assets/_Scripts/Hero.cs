@@ -86,8 +86,10 @@ public class Hero : MonoBehaviour {
             fireDelegate();
         }
 
-        if (!AudioManager.S.playCopyrightSounds && !audioStopped) audioStopped = true;
-        else if (AudioManager.S.playCopyrightSounds && audioStopped) audioStopped = false;
+        if (!AudioManager.S.playCopyrightSounds && GetComponent<AudioSource>().isPlaying)
+            GetComponent<AudioSource>().Stop();
+        else if (AudioManager.S.playCopyrightSounds && invincible && !GetComponent<AudioSource>().isPlaying)
+            GetComponent<AudioSource>().Play();
     }
 
     // This variable holds a reference to the last triggering GameObject

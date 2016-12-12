@@ -19,6 +19,8 @@ public class Enemy : MonoBehaviour {
 	public Bounds bounds; // The Bounds of this and its children
 	public Vector3 boundsCenterOffset; // Dist of bounds.center from position
 
+    public AudioClip explosionSound; // Enemy explosion sound
+
     void Awake()
     {
         materials = Utils.GetAllMaterials(gameObject);
@@ -106,12 +108,18 @@ public class Enemy : MonoBehaviour {
                 health -= Main.W_DEFS[p.type].damageOnHit;
                 if (health <= 0)
                 {
+                    if (AudioManager.S.playSounds) GetComponent<AudioSource>().Play();
                     // Tell the Main singleton that this ship has been destroyed
                     Main.S.ShipDestroyed(this);
                     // Destroy this Enemy
                     UIManager.S.AddScore(score);
 
                     Destroy(this.gameObject);
+                }
+                else
+                {
+                    GetComponent<AudioSource>().clip = explosionSound;
+                    if (AudioManager.S.playSounds) GetComponent<AudioSource>().Play();
                 }
                 Destroy(other);
                 break;
