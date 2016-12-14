@@ -3,6 +3,8 @@ using System.Collections;
 
 public class PowerUp : MonoBehaviour {
 
+
+    public static PowerUp S; // Singleton
     // This is an unusual but handy use of Vector2s.
     // x holds a min value and y a max value for a Random.Range() that will be called later
     public Vector2 rotMinMax = new Vector2(15, 90);
@@ -18,6 +20,7 @@ public class PowerUp : MonoBehaviour {
 
     void Awake()
     {
+        S = this;
         // Find the Cube reference
         cube = transform.Find("Cube").gameObject;
         // Find the TextMesh

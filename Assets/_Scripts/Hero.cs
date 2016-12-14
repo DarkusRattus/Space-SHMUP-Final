@@ -140,6 +140,10 @@ public class Hero : MonoBehaviour {
     public void AbsorbPowerUp(GameObject go)
     {
         PowerUp pu = go.GetComponent<PowerUp>();
+        if (AudioManager.S.playSounds)
+        {
+            PowerUp.S.GetComponent<AudioSource>().Play();
+        }
         switch (pu.type)
         {
             case WeaponType.shield: // If it's the Shield
