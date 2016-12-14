@@ -35,7 +35,7 @@ public class Hero : MonoBehaviour {
     // Create a WeaponFileDelegate field named fireDelegate
     public WeaponFireDelegate fireDelegate;
 
-    private bool audioStopped = false;
+    //private bool audioStopped = false;
 
 	void Awake(){
 		S = this; // Set the singleton
@@ -112,7 +112,11 @@ public class Hero : MonoBehaviour {
             {
                 // If the Shield was triggered by an enemy
                 // Decrease the level of the shield by 1
-                if (!invincible) shieldLevel--;
+                if (!invincible)
+                {
+                    shieldLevel--;
+                    if (AudioManager.S.playSounds) GameObject.Find("Shield").GetComponent<AudioSource>().Play();
+                }
                 if (invincible) UIManager.S.AddScore(go.GetComponent<Enemy>().score);
                 // Destroy the enemy
                 Destroy(go);

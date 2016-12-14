@@ -3,6 +3,8 @@ using System.Collections;
 
 public class Shield : MonoBehaviour {
 
+    public static Shield S; // Singleton
+
 	public float rotationsPerSecond = 0.1f;
 	public bool ____________________;
 	public int levelShown = 0;

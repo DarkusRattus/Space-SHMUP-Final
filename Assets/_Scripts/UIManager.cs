@@ -192,6 +192,7 @@ public class UIManager : MonoBehaviour {
     // Shows the End Game objects
     public void showFinished()
     {
+        if (AudioManager.S.playSounds) Shield.S.GetComponent<AudioSource>().Play();
         endGameTriggered = true;
         foreach (GameObject g in finishObjects)
         {

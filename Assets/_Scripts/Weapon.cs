@@ -53,8 +53,6 @@ public class Weapon : MonoBehaviour {
     public AudioClip soundBlaster;
     public AudioClip soundSpread;
 
-    private bool audioStopped = false;
-
     // Added Awake() to resolve a race condition
     void Awake()
     {
@@ -78,14 +76,11 @@ public class Weapon : MonoBehaviour {
             Hero.S.fireDelegate += Fire;
         }
 
-        // Probably not needed
-        if (!AudioManager.S.playSounds) audioStopped = true;
     }
 
     void Update()
     {
-        if(!AudioManager.S.playSounds && !audioStopped) audioStopped = true;
-        else if(AudioManager.S.playSounds && audioStopped) audioStopped = false;
+
     }
 
     public WeaponType type
