@@ -83,7 +83,7 @@ public class UIManager : MonoBehaviour {
         }
 
         // Handle the ShieldBar
-        if (Hero.S.shieldLevel < 100)
+        if (Hero.S.shieldLevel >= 0)
         {
             shieldBar.transform.localScale = new Vector3(shieldLength * (Hero.S.shieldLevel / Hero.S.maxShieldLevel),
                                                         shieldBar.transform.localScale.y,
@@ -91,7 +91,7 @@ public class UIManager : MonoBehaviour {
         }
         else
         {
-            shieldBar.transform.localScale = new Vector3(shieldLength, shieldBar.transform.localScale.y, shieldBar.transform.localScale.z);
+            shieldBar.transform.localScale = new Vector3(0, shieldBar.transform.localScale.y, shieldBar.transform.localScale.z);
         }
 
         // Show the score
@@ -125,6 +125,13 @@ public class UIManager : MonoBehaviour {
         addedScoreText.GetComponent<Text>().text = "+" + points;
         StartCoroutine(addUpdate(2.5f));
     }
+
+    // Main Menu 
+    public void GoMainMenu()
+    {
+        SceneManager.LoadScene("__Main_Menu");
+    }
+
 
     private IEnumerator addUpdate(float seconds)
     {
@@ -192,7 +199,7 @@ public class UIManager : MonoBehaviour {
     // Shows the End Game objects
     public void showFinished()
     {
-        if (AudioManager.S.playSounds) Shield.S.GetComponent<AudioSource>().Play();
+        if (AudioManager.S.playSounds) Main.S.GetComponent<AudioSource>().Play();
         endGameTriggered = true;
         foreach (GameObject g in finishObjects)
         {
