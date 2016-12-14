@@ -35,20 +35,22 @@ public class AudioManager : MonoBehaviour {
         GetComponent<AudioSource>().loop = true;
 
         if (playMusic) GetComponent<AudioSource>().Play();
-        else audioStopped = true;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+
+        playSounds = UIManager.S.GetBool(PlayerPrefs.GetInt("Sound On"));
+        playMusic = UIManager.S.GetBool(PlayerPrefs.GetInt("Music On"));
+        playCopyrightSounds = UIManager.S.GetBool(PlayerPrefs.GetInt("Copyright On"));
+
         if (!playMusic)
         {
             GetComponent<AudioSource>().Stop();
-            audioStopped = true;
         }
-        else if (audioStopped)
+        else if (playMusic && !GetComponent<AudioSource>().isPlaying)
         {
             GetComponent<AudioSource>().Play();
-            audioStopped = false;
         }
 	}
 }

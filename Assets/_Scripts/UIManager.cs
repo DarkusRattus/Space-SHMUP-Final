@@ -50,6 +50,11 @@ public class UIManager : MonoBehaviour {
         shieldBar = GameObject.Find("HealthMeter");
         invText = GameObject.Find("InvText");
 
+        // Set the toggles to match the PlayerPrefs
+        optionsObjects[0].GetComponent<Toggle>().isOn = GetBool(PlayerPrefs.GetInt("Sound On"));
+        optionsObjects[1].GetComponent<Toggle>().isOn = GetBool(PlayerPrefs.GetInt("Music On"));
+        optionsObjects[2].GetComponent<Toggle>().isOn = GetBool(PlayerPrefs.GetInt("Copyright On"));
+
         shieldLength = shieldBar.transform.localScale.x; // Get the length of the shield bar
         originalAddedScoreColor = addedScoreText.GetComponent<Text>().color; // Grab the original score of AddedScore
         invText.SetActive(false); // The Hero is not invulnerable as of the beginning of this countdown
@@ -62,6 +67,13 @@ public class UIManager : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        if (isOptions)
+        {
+            PlayerPrefs.SetInt("Sound On", GetNum(optionsObjects[0].GetComponent<Toggle>().isOn));
+            PlayerPrefs.SetInt("Music On", GetNum(optionsObjects[1].GetComponent<Toggle>().isOn));
+            PlayerPrefs.SetInt("Copyright On", GetNum(optionsObjects[2].GetComponent<Toggle>().isOn));
+        }
+
         MenuNav();
 
         // Player is kill (RIP in piece)
@@ -160,6 +172,9 @@ public class UIManager : MonoBehaviour {
         {
             g.SetActive(true);
         }
+        optionsObjects[0].GetComponent<Toggle>().isOn = GetBool(PlayerPrefs.GetInt("Sound On"));
+        optionsObjects[1].GetComponent<Toggle>().isOn = GetBool(PlayerPrefs.GetInt("Music On"));
+        optionsObjects[2].GetComponent<Toggle>().isOn = GetBool(PlayerPrefs.GetInt("Copyright On"));
         EventSystem.current.SetSelectedGameObject(currentButton); // Set the current button
     }
 
@@ -290,6 +305,9 @@ public class UIManager : MonoBehaviour {
                         button.GetComponentInChildren<Text>().color = Color.white;
                     }
                 }
+                optionsObjects[0].GetComponent<Toggle>().isOn = GetBool(PlayerPrefs.GetInt("Sound On"));
+                optionsObjects[1].GetComponent<Toggle>().isOn = GetBool(PlayerPrefs.GetInt("Music On"));
+                optionsObjects[2].GetComponent<Toggle>().isOn = GetBool(PlayerPrefs.GetInt("Copyright On"));
             }
             else // We're not paused...so we're on the Game Over screen.
             {
@@ -333,6 +351,17 @@ public class UIManager : MonoBehaviour {
 
         }
 
+    }
+
+    public bool GetBool(int num)
+    {
+        return (num == 1);
+    }
+
+    public int GetNum(bool val)
+    {
+        if (val) return (1);
+        else return (0);
     }
 
     // Sets the sound settings
