@@ -9,12 +9,15 @@ using System.Collections;
 public class UIManager : MonoBehaviour {
 
     public static UIManager S; // Singleton
+    public static int highScore; // High score pulled from PlayerPrefs
 
     // We should access these through the Inspector pane. 
     // Because I like it that way.
     public int bonusScore = 200; // Amount of points the $ powerup gives you
     public Text scoreText; // Score text
     public Text addedScoreText; // Added score text
+    public Text finishScore;
+    public Text finishHighScore;
     public GameObject shieldBar; // Shield health image
     public GameObject invText; // The countdown when you grab an invulnerability PowerUp
 
@@ -40,6 +43,8 @@ public class UIManager : MonoBehaviour {
     void Start()
     {
         // Initialize some things
+        highScore = PlayerPrefs.GetInt("High Score");
+
         scoreText = GameObject.Find("Score").GetComponent<Text>();
         addedScoreText = GameObject.Find("AddedPoints").GetComponent<Text>();
         shieldBar = GameObject.Find("HealthMeter");
@@ -122,18 +127,6 @@ public class UIManager : MonoBehaviour {
         yield return new WaitForSeconds(seconds);
         addedScoreText.GetComponent<Text>().text = "";
     }
-
-
-    /* Pause control
-    public void pauseControl()
-    {
-        if (Time.timeScale == 1)
-        {
-            Time.timeScale = 0;
-            showPaused();
-        }
-        else if (Time.timeScale == 0) hidePaused();
-    }*/
 
     // Show the UI elements on the Pause screen
     public void showPaused()
@@ -300,6 +293,23 @@ public class UIManager : MonoBehaviour {
             }
             else // We're not paused...so we're on the Game Over screen.
             {
+                if (Hero.S.score > highScore)
+                {
+                    PlayerPrefs.SetInt("High Score", Hero.S.score);
+                    finishHighScore.GetComponent<Text>().text = "Old High Score: " + highScore;
+                    finishScore.GetComponent<Text>().text = "NEW HIGH SCORE: " + Hero.S.score;
+                }
+                else if(Hero.S.score == highScore)
+                {
+                    finishHighScore.GetComponent<Text>().text = "You matched the current High Score";
+                    finishScore.GetComponent<Text>().text = "High Score: " + highScore;
+                }
+                else
+                {
+                    finishHighScore.GetComponent<Text>().text = "High Score: " + highScore;
+                    finishScore.GetComponent<Text>().text = "Your Score: " + Hero.S.score;
+                }
+                scoreText.GetComponent<Text>().text = "";
                 // Iterate through the objects on the Game Over screen
                 foreach (GameObject button in finishObjects)
                 {
@@ -311,14 +321,16 @@ public class UIManager : MonoBehaviour {
                     pos++;
                 }
                 // Same thing as before
-                if (pos >= finishObjects.Length - 2 && downKey) currentPos = 0;
+                if (pos >= finishObjects.Length - 5 && downKey) currentPos = 0;
                 else if (downKey) currentPos = pos + 1;
-                else if (pos == 0) currentPos = finishObjects.Length - 2;
+                else if (pos == 0) currentPos = finishObjects.Length - 5;
                 else currentPos = pos - 1;
 
                 currentButton = finishObjects[currentPos]; // Assign the current button
+
             }
             EventSystem.current.SetSelectedGameObject(currentButton);  // Call the method that actually selects the button
+
         }
 
     }

@@ -12,15 +12,13 @@ public class StartUI : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        currentButton = menuObjects[0];
+        currentButton = menuObjects[0]; // Assign the current button to be the first button on the pause screen
+        EventSystem.current.SetSelectedGameObject(currentButton); // This is the selected button
     }
 
     // Update is called once per frame
     void Update()
     {
-        currentButton = menuObjects[0]; // Assign the current button to be the first button on the pause screen
-        EventSystem.current.SetSelectedGameObject(currentButton); // This is the selected button
-
         // Navigate through the buttons
         // THIS CODE IS A MESS LIKE ME HAHAHAHA
         // Note: two buttons can be highlighted at the same time if you're using a mouse at the same time as your keyboard
@@ -45,9 +43,9 @@ public class StartUI : MonoBehaviour
             // The last object in pauseObjects is going to be UI Text for the PAUSED label
             // Because I'm lazy...so putting at Length-2 skips it
             // If we're at Length-2, we're on the last button. So we're going to start at the first.
-            if (pos >= menuObjects.Length - 2 && downKey) currentPos = 0;
+            if (pos >= menuObjects.Length - 3 && downKey) currentPos = 0;
             else if (downKey) currentPos = pos + 1;
-            else if (pos == 0) currentPos = menuObjects.Length - 2;
+            else if (pos == 0) currentPos = menuObjects.Length - 3;
             else currentPos = pos - 1;
             currentButton = menuObjects[currentPos]; // Assign the current button
 
