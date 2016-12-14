@@ -142,7 +142,7 @@ public class Hero : MonoBehaviour {
         PowerUp pu = go.GetComponent<PowerUp>();
         if (AudioManager.S.playSounds)
         {
-            PowerUp.S.GetComponent<AudioSource>().Play();
+            UIManager.S.GetComponent<AudioSource>().Play();
         }
         switch (pu.type)
         {
