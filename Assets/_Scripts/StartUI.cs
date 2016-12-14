@@ -6,8 +6,12 @@ using System.Collections;
 
 public class StartUI : MonoBehaviour
 {
+    public static int highScore;
+
     public GameObject[] menuObjects;
     public GameObject[] optionsObjects;
+
+    public GameObject highScoreText; // High score on the bottom
 
     public bool playSounds = true;
     public bool playMusic = true;
@@ -21,6 +25,9 @@ public class StartUI : MonoBehaviour
     {
         currentButton = menuObjects[0]; // Assign the current button to be the first button on the pause screen
         EventSystem.current.SetSelectedGameObject(currentButton); // This is the selected button
+        highScore = PlayerPrefs.GetInt("High Score");
+        highScoreText = GameObject.Find("HighScore");
+        highScoreText.GetComponent<Text>().text = "High Score: " + highScore;
 
         // Set the toggles to match the PlayerPrefs
         optionsObjects[0].GetComponent<Toggle>().isOn = GetBool(PlayerPrefs.GetInt("Sound On"));

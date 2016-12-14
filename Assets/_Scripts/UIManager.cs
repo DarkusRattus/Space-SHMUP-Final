@@ -197,6 +197,23 @@ public class UIManager : MonoBehaviour {
         {
             g.SetActive(true);
         }
+        if (Hero.S.score > highScore)
+        {
+            PlayerPrefs.SetInt("High Score", Hero.S.score);
+            finishHighScore.GetComponent<Text>().text = "Old High Score: " + highScore;
+            finishScore.GetComponent<Text>().text = "NEW HIGH SCORE: " + Hero.S.score;
+        }
+        else if (Hero.S.score == highScore)
+        {
+            finishHighScore.GetComponent<Text>().text = "You matched the current High Score";
+            finishScore.GetComponent<Text>().text = "High Score: " + highScore;
+        }
+        else
+        {
+            finishHighScore.GetComponent<Text>().text = "High Score: " + highScore;
+            finishScore.GetComponent<Text>().text = "Your Score: " + Hero.S.score;
+        }
+        scoreText.GetComponent<Text>().text = "";
         shieldBar.SetActive(false);
         currentButton = finishObjects[0]; // Assign the current button to the first button on the Game Over screen
         EventSystem.current.SetSelectedGameObject(currentButton); // Set the current button
@@ -311,23 +328,6 @@ public class UIManager : MonoBehaviour {
             }
             else // We're not paused...so we're on the Game Over screen.
             {
-                if (Hero.S.score > highScore)
-                {
-                    PlayerPrefs.SetInt("High Score", Hero.S.score);
-                    finishHighScore.GetComponent<Text>().text = "Old High Score: " + highScore;
-                    finishScore.GetComponent<Text>().text = "NEW HIGH SCORE: " + Hero.S.score;
-                }
-                else if(Hero.S.score == highScore)
-                {
-                    finishHighScore.GetComponent<Text>().text = "You matched the current High Score";
-                    finishScore.GetComponent<Text>().text = "High Score: " + highScore;
-                }
-                else
-                {
-                    finishHighScore.GetComponent<Text>().text = "High Score: " + highScore;
-                    finishScore.GetComponent<Text>().text = "Your Score: " + Hero.S.score;
-                }
-                scoreText.GetComponent<Text>().text = "";
                 // Iterate through the objects on the Game Over screen
                 foreach (GameObject button in finishObjects)
                 {
